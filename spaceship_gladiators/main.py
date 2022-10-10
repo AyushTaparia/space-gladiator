@@ -86,11 +86,13 @@ def iscollision(enemyX, enemyY, bulletX, bulletY):
     else:
         return False
 
-# game loop
-running = True
-while running:
+#main game function
 
-    # color red green blue
+if __name__ == '__main__':
+  running = True
+  while running:
+    
+    # color: red green blue
     screen.fill((0, 0, 0))
 
     # background
@@ -100,7 +102,6 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
         # keystroke is pressed whether its left or right
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
@@ -119,7 +120,7 @@ while running:
             if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
                 playerX_change = 0
 
-    # checking for boundaries
+    # checking if player goes out of bounds
     playerX += playerX_change
 
     if playerX <=0:
