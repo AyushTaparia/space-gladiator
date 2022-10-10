@@ -86,88 +86,88 @@ def iscollision(enemyX, enemyY, bulletX, bulletY):
     else:
         return False
 
-# game loop
-running = True
-while running:
+#main game function
+if __name__ == '__main__':
+    running = True
+    while running:
+      
+      # color: red green blue
+      screen.fill((0, 0, 0))
 
-    # color red green blue
-    screen.fill((0, 0, 0))
+      # background
+      screen.blit(background, (0, 0))
 
-    # background
-    screen.blit(background, (0, 0))
+      # for exiting the game
+      for event in pygame.event.get():
+          if event.type == pygame.QUIT:
+              running = False
+          # keystroke is pressed whether its left or right
+          if event.type == pygame.KEYDOWN:
+              if event.key == pygame.K_LEFT:
+                  playerX_change = -4
+              if event.key == pygame.K_RIGHT:
+                  playerX_change = 4
+              if event.key == pygame.K_SPACE:
+                  # get the current x coordinate of the bullet
+                  if bullet_state is "ready":
+                      bullet_Sound = mixer.Sound('laser.mp3')
+                      bullet_Sound.play()
+                      bulletX = playerX
+                      fire_bullet(bulletX, bulletY)
 
-    # for exiting the game
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+          if event.type == pygame.KEYUP:
+              if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                  playerX_change = 0
 
-        # keystroke is pressed whether its left or right
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                playerX_change = -4
-            if event.key == pygame.K_RIGHT:
-                playerX_change = 4
-            if event.key == pygame.K_SPACE:
-                # get the current x coordinate of the bullet
-                if bullet_state is "ready":
-                    bullet_Sound = mixer.Sound('laser.mp3')
-                    bullet_Sound.play()
-                    bulletX = playerX
-                    fire_bullet(bulletX, bulletY)
+      # checking if player goes out of bounds
+      playerX += playerX_change
 
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                playerX_change = 0
+      if playerX <=0:
+          playerX = 0
+      elif playerX >=736:
+          playerX = 736
 
-    # checking for boundaries
-    playerX += playerX_change
+      # enemy movement
+      for i in range (num_of_enemies):
 
-    if playerX <=0:
-        playerX = 0
-    elif playerX >=736:
-        playerX = 736
+          # game over
+          if enemyY[i] > 440:
+              for j in range (num_of_enemies):
+                  enemyY[j] = 2000
+              game_over_text()
+              break
 
-    # enemy movement
-    for i in range (num_of_enemies):
+          enemyX[i] += enemyX_change[i]
 
-        # game over
-        if enemyY[i] > 440:
-            for j in range (num_of_enemies):
-                enemyY[j] = 2000
-            game_over_text()
-            break
+          if enemyX[i] <=0:
+              enemyX_change[i] = 3
+              enemyY[i] += enemyY_change[i]
+          elif enemyX[i] >=736:
+              enemyX_change[i] = -3
+              enemyY[i] += enemyY_change[i]
 
-        enemyX[i] += enemyX_change[i]
+          # collision
+          collision = iscollision(enemyX[i], enemyY[i], bulletX, bulletY)
+          if collision:
+              explosion_Sound = mixer.Sound('Explosion.wav')
+              explosion_Sound.play()
+              bulletY = 490
+              bullet_state = "ready"
+              score_value += 1
+              enemyX[i] = random.randint(0,735)
+              enemyY[i] = random.randint(50,150)
+          
+          enemy(enemyX[i], enemyY[i], i)
 
-        if enemyX[i] <=0:
-            enemyX_change[i] = 3
-            enemyY[i] += enemyY_change[i]
-        elif enemyX[i] >=736:
-            enemyX_change[i] = -3
-            enemyY[i] += enemyY_change[i]
+      # bullet movement
+      if bulletY <= 0:
+          bulletY = 490
+          bullet_state = "ready"
 
-        # collision
-        collision = iscollision(enemyX[i], enemyY[i], bulletX, bulletY)
-        if collision:
-            explosion_Sound = mixer.Sound('Explosion.wav')
-            explosion_Sound.play()
-            bulletY = 490
-            bullet_state = "ready"
-            score_value += 1
-            enemyX[i] = random.randint(0,735)
-            enemyY[i] = random.randint(50,150)
-        
-        enemy(enemyX[i], enemyY[i], i)
+      if bullet_state is "fire":
+          fire_bullet(bulletX, bulletY)
+          bulletY -= bulletY_change
 
-    # bullet movement
-    if bulletY <= 0:
-        bulletY = 490
-        bullet_state = "ready"
-
-    if bullet_state is "fire":
-        fire_bullet(bulletX, bulletY)
-        bulletY -= bulletY_change
-
-    player(playerX, playerY)
-    show_score(textX, textY)
-    pygame.display.update()
+      player(playerX, playerY)
+      show_score(textX, textY)
+      pygame.display.update()
